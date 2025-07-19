@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+          @page {
+            
+            margin: 0mm;
+        }
+        .body{
+            margin: 0;
+            padding: 0;
+        }
+        .top-margin {
+            height: 150px;
+        }
+        .invoice-deatils{
+            display: flex !important;
+            justify-content: space-between;
+        }
+        .invoice-deatils td{
+            padding: 2px;
+        }
+        .head-table{
+            padding-left: 50px;
+            box-sizing: border-box;
+        }
+        .items-container tr:first-child{
+            width: 70%;
+        }
+        .footer{
+            display: flex;
+            position: fixed;
+            width: 100%;
+
+        }
+	th, td{
+		text-align:center ;
+	}
+    </style>
+</head>
+<body onload="printInvoice()">
+    <div class="invoice" id="invoice-content">
+        <div class="top-margin">
+
+        </div>
+        <div class="invoice-deatils" style="margin-top: 30px;">
+            <div class="items-container" style="margin-top: -10px;">
+                <h5>Customer/اسم العميل</h5>
+                <p>{{ order.customer.name }}</p>
+                <p>{{ order.customer.city }}</p>
+
+            </div>
+            <div class="items-comtainer head-table margin-top:20px;" >
+                <table style="width:100%;position: relative;left: 0px;" >
+                    <tr>
+                        <td>Date</td>
+                        <td>{{ order.order_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Invoice Number</td>
+                        <td>{{ order.invoice_number }}</td>
+                    </tr>
+                    <tr>
+                        <td>Sales Rep</td>
+                        <td>{{ order.sales_man }}</td>
+                    </tr>
+                    <tr>
+                        <td>Payment</td>
+                        <td>{{ order.payment_status1 }}</td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+        <div class="header_" style="height: 15px;"></div>
+        <div class="item-details" style="margin-top:40px;height:488px; padding: 10px;box-sizing: border-box;padding-left: 0;margin-right: 30px; ">
+            <table style="width: 100%;table-layout: fixed;">
+                {% for item in order.orderitem_set.all %}
+                <tr>
+                    <td style="width: 10% !important;padding-left:10px;">{{forloop.counter}}</td>
+                    <td style="width: 50% !important;padding-left:10px ">{{ item.product.name }}</td>
+                    <td style="width: 10% !important;padding-left:7px">{{ item.product.unit_quantity }} {{item.product.unit}}</td>
+                    <td style="width: 10% !important;padding-left:10px;"> {{ item.quantity }}</td>
+                    <td style="width: 9% !important;padding-left: 30px;box-sizing: border-box;">{{ item.unit_price |floatformat:2}}</td>
+                    <td style="width: 10% !important;padding-left:30px;box-sizing: content-box;position: relative;left: 13px;text-align:center">{{ item.total_price|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="footer">
+            <div class="foot-items" style="flex-grow: 8;text-align: center;width: 80%;">
+                    <h6 class="text-center mt-2"> {{total_in_words}}</h6>
+            </div>
+            <div class="foot-items" style="flex-grow: 4;text-align: right;padding-right: 30px;magin-top:6px">
+                <p style='margin-top:'>{{order.total_amount_before_discount|floatformat:2}}</p>
+                <p style='margin-top:-2px;'>{{order.discount|floatformat:2}}</p>
+                <p style='margin-top:-2px;'>{{order.total_amount|floatformat:2}}</p>
+
+            </div>
+        </div>
+
+    </div> 
+    <script>
+        function printInvoice() {
+            var printContents = document.getElementById('invoice-content').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+
+            setTimeout(function () {
+                window.close(); // Close the window after printing
+            }, 100); // 100ms delay, adjust if needed
+        }
+    </script>
+</body>
+</html>

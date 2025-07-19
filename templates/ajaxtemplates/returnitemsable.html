@@ -1,0 +1,40 @@
+<div class="card" style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
+    <div class="card-header d-flex justify-content-between">
+        <div class="header-title">
+            <h4 class="card-title">Return Items - {{return_number}}</h4>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-stripped">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <!-- <th>Discount</th> -->
+                    <th>Add To Return</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit_price }}</td>
+                    <td>{{ item.discount }}</td>
+                    <td>
+                        <a href="{%url 'create_return_on_purchase' order.id item.id%}"class="btn btn-success btn"><i class="las la-plus mr-2"></i></a>
+                        <form method="post"   id="return_add">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{item.id}}" name="item_id" id="item_id">
+                            <input type="hidden" value="{{order.id}}" name="order_id" id="order_id">
+                        <button type="submit" class="btn btn-success btn"><i class="las la-plus mr-2"></i></button>
+                        </form>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

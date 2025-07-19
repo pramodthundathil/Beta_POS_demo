@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <title>Open Invoices
+    </title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px; /* Reduced font size */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 4px; /* Reduced padding */
+            text-align: left;
+            word-wrap: break-word; /* Enable word wrapping */
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .totals-row {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        /* Adjust column widths */
+        th:nth-child(1), td:nth-child(1) { width: 10%; } /* Invoice No */
+        th:nth-child(2), td:nth-child(2) { width: 10%; } /* Order No */
+        th:nth-child(3), td:nth-child(3) { width: 15%; } /* Date */
+        th:nth-child(4), td:nth-child(4) { width: 15%; } /* Payment Term Days */
+        th:nth-child(5), td:nth-child(5) { width: 15%; } /* Due Date */
+        th:nth-child(6), td:nth-child(6) { width: 15%; } /* Grand Total */
+        th:nth-child(7), td:nth-child(7) { width: 10%; } /* Paid Amount */
+        th:nth-child(8), td:nth-child(8) { width: 10%; } /* Open Amount */
+        th:nth-child(9), td:nth-child(9) { width: 10%; } /* Days Past Due */
+        .header{
+            text-align: center;
+            margin-bottom: 20px;
+
+        }
+        .header p{
+            font-size: large;
+        }
+      img{
+                /* display: block; */
+                width:40px;
+                /* margin: auto; */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+       <!-- <img src="{{logo_url}}" alt=""> -->
+       <h1>Company Name</h1>
+    <h2 >Open Invoices
+    </h2>
+    <h4>From {{ start_date }} to {{ end_date }}</h4>
+    <p>Customer: {{customer.name}}, {{customer.city}}</p>
+</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Invoice No</th>
+                <!-- <th>Order No</th> -->
+                <!-- <th>Date</th> -->
+                <th>Payment Term Days</th>
+                <th>Days Past Due</th>
+
+                <th>Due Date</th>
+                <th>Grand Total</th>
+                <th>Paid Amount</th>
+                <th>Open Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>{{ row.invoice_no }}</td>
+                <!-- <td>{{ row.order_no }}</td> -->
+                <!-- <td>{{ row.date }}</td> -->
+                <td>{{ row.payment_term_days }}</td>
+                <td>{{ row.days_past_due }}</td>
+
+                <td>{{ row.due_date }}</td>
+                <td>{{ row.grand_total }}</td>
+                <td>{{ row.paid_amount }}</td>
+                <td>{{ row.open_amount }}</td>
+            </tr>
+            {% endfor %}
+            <!-- Totals Row -->
+            <tr class="totals-row">
+                <td colspan="4">Totals</td>
+                <td>{{ totals.grand_total_sum }}</td>
+                <td>{{ totals.paid_amount_sum }}</td>
+                <td>{{ totals.open_amount_sum }}</td>
+                
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

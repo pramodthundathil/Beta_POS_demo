@@ -1,0 +1,100 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .category-add-list {
+        width: 80% !important;
+        margin: auto;
+    }
+
+    @media (max-width: 700px) {
+        .category-add-list {
+            width: 100% !important;
+        }
+    }
+
+    tr {
+        border-bottom: 0.5px solid gray;
+    }
+</style>
+
+<div class="category-add-list">
+    <div class="content-page">
+        <div class="container-fluid add-form-list">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card" style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="header-title">
+                                <h4 class="card-title">Add Return</h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data" data-toggle="validator" id="invoiceForm">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="order_number">Invoice Number</label>
+                                            <input type="text" name="order_number" class="form-control" id="order_number" required>
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary mr-2">Check Invoice</button>
+                                <button type="reset" class="btn btn-danger">Reset</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div id="itemtable">
+                        {% include 'ajaxtemplates/returnitemtable.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/app.js' %}"></script>
+<script src="{% static 'assets/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery-ui.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'assets/css/select2.min.css' %}">
+
+<script>
+    $(document).ready(function() {
+        // Set date limits if the fields exist
+        const exDate = document.getElementById("ex_date");
+        const manDate = document.getElementById("man_date");
+
+        if (exDate) exDate.setAttribute('min', new Date().toISOString().split('T')[0]);
+        if (manDate) manDate.setAttribute('max', new Date().toISOString().split('T')[0]);
+
+        // Handle form submission via AJAX
+        $('#invoiceForm').on('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            $.ajax({
+                url: "{% url 'fetch_order_items' %}",  // Correct URL for your view
+                type: "POST",
+                data: {
+                    order_number: $('#order_number').val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log(response)
+
+                    // Load the response HTML into the #itemtable div
+                    $('#itemtable').html(response.html);
+                },
+                error: function(xhr, errmsg, err) {
+                    console.error("Error fetching order items:", errmsg);
+                    alert("Invoice Is not exists. Check Invoice");
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

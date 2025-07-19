@@ -1,0 +1,96 @@
+{% extends 'index.html' %}
+{% block content %}
+<style>
+    /* .m-status-false{
+        opacity: .3;
+    } */
+</style>
+<div class="category-update-list">
+    <div class="content-page">
+        <div class="container-fluid update-form-list">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card"
+                        style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="header-title">
+                                <h4 class="card-title">Return Item</h4>
+                                {% for message in messages %}
+                                <div class="alert {{message.tags}} " role="alert">
+                                    <div class="iq-alert-text"><b></b> {{message}}</div>
+                                </div>
+                                {% endfor %}
+                                <h6>Return Number - {{returns.return_number}}
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-stripped">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Reason</th>
+                                        <th>Remove From Return</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    {% if returns.confirmation == True %}
+
+                                    <tr>
+                                        <td>{{ return_item.order_item.product.name }}</td>
+                                        <td>{{return_item.return_quantity}} </td>
+                                        <td>{{ return_item.order_item.unit_price }}</td>
+                                        <td>{{return_item.reason}} </td>
+                                        <td>
+                                            <!-- <a href="" onclick="return confirm('Are you sue want to delete?')" class="btn btn-danger btn">delete</a> -->
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+                            {% else %}
+                            <form method="POST" action="{%url 'ItemPOST' returns.id return_item.id  %}">
+                                {% csrf_token %}
+                                <tr>
+                                    <td>{{ return_item.order_item.product.name }}</td>
+                                    <td><input type="number" value="{{return_item.return_quantity}}"
+                                            class="form-control" name="quantity"></td>
+                                    <td>{{ return_item.order_item.unit_price }}</td>
+                                    <td><input type="text" value="{{return_item.reason}}" class="form-control"
+                                            name="reason"></td>
+
+                                    <td>
+                                        <a href="" onclick="return confirm('Are you sue want to delete?')"
+                                            class="btn btn-danger btn">delete</a>
+
+                                    </td>
+                                </tr>
+                                </tbody>
+                                </table>
+
+                                <button type="submit" class="btn btn-secondary">Confirm Return</button>
+                            </form>
+
+                            {% endif %}
+
+                            <br><br>
+                            <!-- <a href="">Make Item Adjusted To Product Inventory</a> -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+{% endblock %}

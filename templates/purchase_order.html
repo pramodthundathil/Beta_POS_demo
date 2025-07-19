@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+          @page {
+            size: A4;
+            margin: 0mm;
+        }
+        .body{
+            margin: 0;
+            padding: 0;
+        }
+        .top-margin {
+            height: 150px;
+        }
+        .invoice-deatils{
+            display: flex !important;
+            justify-content: space-between;
+        }
+        .invoice-deatils td{
+            padding: 2px;
+        }
+        .head-table{
+            padding-left: 50px;
+            box-sizing: border-box;
+        }
+        .items-container tr:first-child{
+            width: 70%;
+        }
+        .footer{
+            display: flex;
+
+        }
+    </style>
+</head>
+<body onload="printInvoice()">
+    <div class="invoice" id="invoice-content">
+        <div class="top-margin">
+
+        </div>
+        <div class="invoice-deatils" style="margin-top: 50px;">
+            <div class="items-container" style="margin-top: -10px;">
+                <h5>Supplier/اسم العميل</h5>
+                <p>{{ purchase_order.supplier.name }}</p>
+                <p></p>
+
+            </div>
+            <div class="items-comtainer head-table margin-top:50px;" >
+                <table style="width:100%;position: relative;left: 0px;" >
+                    <tr>
+                        <td>Date</td>
+                        <td>{{ purchase_order.bill_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>Order Number</td>
+                        <td>{{ purchase_order.purchase_order_number }}</td>
+                    </tr>
+                    <tr>
+                        <td>Valid Till</td>
+                        <td>{{ purchase_order.valid_till }}</td>
+                    </tr>
+                    <tr>
+                        <td>Payment</td>
+                        <td>{{ purchase_order.purchase_type }}</td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+        <div class="header_" style="height: 15px;"></div>
+        <div class="item-details" style="margin-top:30px;height:515px; padding: 10px;box-sizing: border-box;padding-left: 0;margin-right: 30px; ">
+            <h5 class="text-center">Purchase Order</h5>
+            <table style="width: 100%;">
+                
+                <tr>
+                    <td style="width: 7% !important;">1</td>
+                    <td style="width: 53% !important; ">{{ purchase_order.purchase_item.product_name }}</td>
+                    <td style="width: 10% !important;">{{ purchase_order.quantity }} {{item.product.unit}}</td>
+                    <td style="width: 10% !important;">{{ purchase_order.quantity }}-</td>
+                    <td style="width: 10% !important;padding-left: 30px;box-sizing: border-box;">{{ purchase_order.purchase_price |floatformat:2}}</td>
+                    <td style="width: 10% !important;padding-left: 35px;box-sizing: border-box;position: relative;left: 8px;">{{ purchase_order.amount|floatformat:2 }}</td>
+                </tr>
+                
+            </table>
+        </div>
+        <div class="footer">
+            <div class="foot-items" style="flex-grow: 8;text-align: center;">
+                    <h6 class="text-center mt-2"> {{total_in_words}}  Qatari Riyal Only</h6>
+            </div>
+            <div class="foot-items" style="flex-grow: 4;text-align: right;padding-right: 20px;">
+                <p>{{purchase_order.purchase_price|floatformat:2}}</p>
+                <p>{{purchase_order.discount|floatformat:2}}</p>
+                <p>{{purchase_order.amount|floatformat:2}}</p>
+
+            </div>
+        </div>
+
+    </div>
+    <script>
+        function printInvoice() {
+            var printContents = document.getElementById('invoice-content').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+
+            setTimeout(function () {
+                window.close(); // Close the window after printing
+            }, 100); // 100ms delay, adjust if needed
+        }
+    </script>
+</body>
+</html>

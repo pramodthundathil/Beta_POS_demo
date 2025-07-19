@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+{% load custom_filters %}
+<html>
+<head>
+    <title>Statement of Account - Salesman Wise</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px; /* Reduced font size */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 4px; /* Reduced padding */
+            text-align: left;
+            /* word-wrap: break-word; Enable word wrapping */
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .totals-row {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        /* Adjust column widths */
+        th:nth-child(1), td:nth-child(1) { width: 10% !important; } /* Invoice No */
+        th:nth-child(2), td:nth-child(2) { width: 10% !important; } /* Order No */
+        th:nth-child(3), td:nth-child(3) { width: 15% !important; } /* Date */
+        th:nth-child(4), td:nth-child(4) { width: 15% !important; } /* Payment Term Days */
+        th:nth-child(5), td:nth-child(5) { width: 15% !important; } /* Due Date */
+        th:nth-child(6), td:nth-child(6) { width: 15% !important; } /* Grand Total */
+        th:nth-child(7), td:nth-child(7) { width: 10% !important; } /* Paid Amount */
+        th:nth-child(8), td:nth-child(8) { width: 10% !important; } /* Open Amount */
+        th:nth-child(9), td:nth-child(9) { width: 10% !important; } /* Days Past Due */
+        .header{
+            text-align: center;
+            margin-bottom: 20px;
+
+        }
+        .header p{
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <!-- <img src="{{logo_url}}" width="40px" alt=""> -->
+        <h1>Company Name</h1>
+        <h2>Statement of Account - Salesman Wise</h2>
+        <p>Salesman: {{ salesman }}</p>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Ref. No.</th>
+                <th>Due Date</th>
+                <th>Over Due</th>
+                <th>Amount</th>
+                <th>Paid</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer, transactions in data.items %}
+                <!-- Display Customer Name -->
+                <tr>
+                    <td colspan="8"><strong>{{ customer }}</strong></td>
+                </tr>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.invoice_no }}</td>
+                    <td>{{ transaction.due_date }}</td>
+                    <td>{{ transaction.payment_term_days }}</td>
+                    <td>{{ transaction.grand_total }}</td>
+                    <td>{{ transaction.paid_amount }}</td>
+                    <td>{{ transaction.open_amount }}</td>
+                </tr>
+                {% endfor %}
+                
+                <!-- Subtotal Row for each Customer -->
+                 <!-- Subtotal Row for each Customer -->
+                 {% with customer_total=customer_totals|get_item:customer %}
+                 <tr class="totals-row">
+                     <td colspan="5">Totals:</td>
+                     <td>QAR {{ customer_total.amount|floatformat:2 }}</td>
+                     <td>QAR {{ customer_total.paid|floatformat:2 }}</td>
+                     <td>QAR {{ customer_total.balance|floatformat:2 }}</td>
+                 </tr>
+                 {% endwith %}
+            {% endfor %}
+            
+            <!-- Overall Totals -->
+            <tr class="totals-row">
+                <td colspan="5">Overall Totals:</td>
+                <td>{{ totals.amount|floatformat:2 }}</td>
+                <td>{{ totals.paid|floatformat:2 }}</td>
+                <td>{{ totals.balance|floatformat:2 }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="footer">
+        <p></p>
+        <p>{{ current_date }}</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Barcodes</title>
+    <style>
+        .barcodes{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            flex-direction: column;
+        }
+        .barcode-label {
+            width: 240px;
+            height: 130px;
+            border: 1px solid #333;
+            padding: 10px;
+            margin: 10px auto;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            page-break-after: always;
+        }
+        .barcode-label img {
+            /* width: 80%; */
+            margin: 5px 0;
+        }
+        .product-details {
+            font-size: 10px;
+            margin-top: 1px;
+        }
+    </style>
+</head>
+<body>
+<div class="barcodes">
+{% for i in range %}
+    <div class="barcode-label">
+        <div class="product-details">
+            <strong>{{ batch.product.name }} {{batch.product.unit_quantity}}{{ batch.product.unit.unit }}</strong><br>
+         
+            Manufacture Date: {{ batch.manufactured_date|date:"d M Y" }} <br>
+            Expiry Date: {{batch.expiry_date|date:"d M Y" }} <br>
+        </div>
+        <img style="height: 60px;width: 200px;" src="{% url 'product_barcode_image' batch.id %}" alt="Barcode">
+        Code: {{ batch.product.barcode_number }}
+    </div>
+{% endfor %}
+</div>
+
+</body>
+</html>

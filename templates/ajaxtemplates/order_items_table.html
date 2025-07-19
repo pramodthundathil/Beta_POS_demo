@@ -1,0 +1,209 @@
+{% load static %}
+<table class="table table-striped mt-3" style="width: 100% !important;">
+    <tr class="head-tr-class">
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Discount</th>
+        <th>SubTotal</th>
+        <th>Actions</th>
+    </tr>
+    {% for item in order.orderitem_set.all %}
+    <tr>
+        <td>{{ item.product.name }} {{item.product.unit_quantity}}{{item.product.unit}}</td>
+        <td><input type="number" value="{{ item.unit_price |floatformat:2 }}" name="unit_price" id="unit_price{{item.id}}"
+                class="form-control">
+        </td>
+        <td><input type="number" value="{{ item.quantity }}" name="quantity" class="form-control"></td>
+        <td><input type="number" value="{{ item.discount  }}" name="discount" class="form-control"></td>
+
+        <td>{{ item.total_price |floatformat:2 }}</td>
+        <td>
+            <button class="btn btn-sm btn-primary increase-quantity" data-item-id="{{ item.id }}">Delete</button>
+            <!-- <button class="btn btn-sm btn-secondary decrease-quantity" data-item-id="{{ item.id }}">-</button> -->
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <th colspan="5"></th>
+    </tr>
+    <tr>
+        <th colspan="4" class="text-center bg-info-light">Grand Total</th>
+        <th style="font-size: x-large;" id="total1" colspan="2" class="bg-info-light text-left">{{ order.total_amount|floatformat:2 }}
+        </th>
+        <!-- <th class="bg-info-light"></th> -->
+    </tr>
+</table>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <div class="header-title">
+            <form id="payment" action="">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Total Amount:</label>
+                        <input type="number" class="form-control" readonly value="{{order.total_amount |floatformat:2}}"
+                            name="total_amount">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Amount Paid:</label>
+                        <br>
+                        <input type="number" class="form-control" id="amount-paid"
+                            value="{{order.payed_amount |floatformat:2}}" name="amount_paid">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Discount On total Bill:</label>
+                        <br>
+                        <input type="hidden" class="form-control" id="discount-amount" value="" name="discount_amount">
+                        <span class="text0-info">Bill Discount: {{order.bill_discount |floatformat:2}}</span>
+                        <a class="btn btn-sm btn-outline-primary" data-toggle="modal"
+                            data-target=".bd-example-modal-lg-discount">Add Bill Discount</a>
+
+
+                    </div>
+                    <div class="col-md-3">
+                        <label>Balance amount:</label>
+                        <br>
+                        <input type="number" readonly class="form-control" id="balance-amount"
+                            value="{{order.balance_amount |floatformat:2}}" name="balance_amount">
+
+                    </div>
+                    <div class="col-md-12">
+                        <h3 id="payment-status">{{order.payment_status1}}</h3>
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <a href="{%url 'invoice' order.id %}" target="_blank" class="btn btn-primary">Save and Print
+                            Invoice</a>
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <a href="{%url 'save_order' order.id %}" class="btn btn-secondary">Save</a>
+                    </div>
+                    <!-- <div class="col-md-4 mt-3">
+                        <a href="" class="btn btn-info">Discount</a>
+                    </div> -->
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal fade bd-example-modal-lg-discount" id="bill_discount" tabindex="-1" role="dialog"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Bill Discount</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{%url 'add_bill_discount_to_order' order.id %}" data-toggle="validator">
+                        {% csrf_token %}
+                        <div class="row">
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="">Discount <sup></sup> </label>
+                                    <input type="number" step=".001" name="bill_discount" class="form-control"
+                                        placeholder="discount" id="bill_discount" required>
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Bill Discount</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#amount-paid').on('input', function () {
+            var amountPaid = parseFloat($(this).val());
+            var totalAmount = parseFloat($('input[name="total_amount"]').val());
+            var balanceAmount = totalAmount - amountPaid;
+
+            $('#balance-amount').val(balanceAmount);
+
+            var paymentStatus;
+            if (amountPaid == 0) {
+                paymentStatus = 'UNPAID';
+            } else if (amountPaid >= totalAmount) {
+                paymentStatus = 'PAID';
+            } else {
+                paymentStatus = 'PARTIALLY';
+            }
+
+            $('#payment-status').text(paymentStatus);
+
+            // Send AJAX request to update the backend
+            $.ajax({
+                url: "{% url 'update_order_payment' order.id %}", // Update with your URL pattern name
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    payed_amount: amountPaid
+                },
+                success: function (response) {
+                    console.log("Order payment updated successfully.");
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error updating order payment:", errmsg);
+                }
+            });
+        });
+    });
+
+
+    $(document).ready(function () {
+        function calculateBalance() {
+            var amountPaid = parseFloat($('#amount-paid').val()) || 0;
+            var discountAmount = parseFloat($('#discount-amount').val()) || 0;
+            var totalAmount = parseFloat($('input[name="total_amount"]').val());
+            var discountedTotal = totalAmount - discountAmount;
+            var balanceAmount = discountedTotal - amountPaid;
+
+            $('#balance-amount').val(balanceAmount);
+
+            var paymentStatus;
+            if (amountPaid == 0) {
+                paymentStatus = 'UNPAID';
+            } else if (amountPaid >= discountedTotal) {
+                paymentStatus = 'PAID';
+            } else {
+                paymentStatus = 'PARTIALLY';
+            }
+
+            $('#payment-status').text(paymentStatus);
+
+            // Send AJAX request to update the backend
+            $.ajax({
+                url: "{% url 'update_order_payment' order.id %}",
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    payed_amount: amountPaid,
+                    discount: discountAmount
+                },
+                success: function (response) {
+                    console.log("Order payment updated successfully.");
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log("Error updating order payment:", errmsg);
+                }
+            });
+        }
+
+        $('#amount-paid, #discount-amount').on('input', calculateBalance);
+    });
+
+</script>

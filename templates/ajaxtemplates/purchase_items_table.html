@@ -1,0 +1,30 @@
+<table class="table table-striped mt-3" style="width: 100% !important;">
+    <tr class="head-tr-class">
+        <th>Product</th>
+        <th>Price</th>
+        <th>Tax</th>
+        <th>Quantity</th>
+        <th>SubTotal</th>
+        <th>Actions</th>
+    </tr>
+    {% for item in order.orderitem_set.all %}
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.unit_price }}</td>
+        <td>{{ item.total_tax }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.total_price }}</td>
+        <td>
+            <button class="btn btn-sm btn-primary increase-quantity" data-item-id="{{ item.id }}">+</button>
+            <button class="btn btn-sm btn-secondary decrease-quantity" data-item-id="{{ item.id }}">-</button>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <th colspan="5"></th>
+    </tr>
+    <tr>
+        <th colspan="5" class="text-center bg-info-light">Grand Total</th>
+        <th style="font-size: x-large;" class="bg-info-light">{{ order.total_amount }}</th>
+    </tr>
+</table>

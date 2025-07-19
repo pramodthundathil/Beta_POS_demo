@@ -1,0 +1,164 @@
+{% extends 'index.html' %}
+{% block content %}
+
+<style>
+    .category-add-list {
+        width: 80% !important;
+        margin: auto;
+
+    }
+
+    @media (max-width:700px) {
+
+        .category-add-list {
+            width: 100% !important;
+
+        }
+    }
+</style>
+
+<div class="category-add-list">
+    <div class="content-page">
+        <div class="container-fluid add-form-list">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card"style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="header-title">
+                                <h4 class="card-title">Update Inventory</h4>
+                                <h6>Item Number: {{ inventory.product_code }}  </h6>
+                                
+                                
+
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" data-toggle="validator">
+                                {% csrf_token %}
+                                <div class="row">
+                                {% for field in form %}
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{field.label_tag}}
+                                            {{field}}
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="submit" class="btn btn-primary mr-2">Update Inventory</button>
+                                <button type="reset" class="btn btn-danger">Reset</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Page end  -->
+        </div>
+
+        <div class="container-fluid add-form-list">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card"style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="header-title">
+                                <h4 class="card-title">Purchases</h4>
+                                <h6>Item Number: {{ inventory.product_code }}  </h6>
+                                
+                                
+
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="data-tables table mb-0 tbl-server-info">
+                                <thead class="bg-white text-uppercase">
+                                    <tr class="ligth ligth-data">
+                                        <th>
+                                            <div class="checkbox d-inline-block">
+                                                <input type="checkbox" class="checkbox-input" id="checkbox1">
+                                                <label for="checkbox1" class="mb-0"></label>
+                                            </div>
+                                        </th>
+                                        <th>Bill No</th>
+                                        <!-- <th>Product</th> -->
+                                        <th>Price</th>
+                                        <th>Total amount</th>
+                                        <th>Vendor</th>
+                                        <th>Quantity</th>
+                                        <th>Bill Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="ligth-body">
+        
+                                    {% for m in purchase %}
+        
+                                    <tr>
+                                        <td>
+                                            <div class="checkbox d-inline-block">
+                                                <input type="checkbox" class="checkbox-input" id="checkbox2">
+                                                <label for="checkbox2" class="mb-0"></label>
+                                            </div>
+                                        </td>
+                                        <th>{{m.purchase_bill_number}}</th>
+                                        <!-- <td> -->
+                                            <!-- {{m.purchase_item}}</td> -->
+                                        <!-- <td>{{m.code}}</td> -->
+                                        <td>QAR {{m.purchase_price}}</td>
+                                        <td>QAR {{m.amount}} </td>
+                                        <td>{{m.supplier}}</td>
+        
+                                        <td>{{m.quantity}} {{m.unit}}</td>
+                                        <td>{{m.bill_date}}</td>
+                                        <th>
+                                            <span class="bg-secondary"
+                                                style="padding: 3px; border-radius: 8px;">{{m.payment_status}}</span>
+                                        </th>
+                                        <td>
+                                            <div class="d-flex align-items-center list-action">
+        
+                                                <a class="badge bg-success mr-2" data-toggle="tooltip" data-placement="top"
+                                                    title="" data-original-title="Edit" href="{%url 'edit_purchase' m.id %}"><i
+                                                        class="ri-pencil-line mr-0"></i></a>
+                                                <button class="badge bg-warning mr-2" data-toggle="modal"
+                                                    data-target="#deletemodel{{m.id}}" data-original-title="Delete" href="#"><i
+                                                        class="ri-delete-bin-line mr-0"></i></button>
+                                                <!-- Delete Modal -->
+                                                <div class="modal fade" id="deletemodel{{m.id}}" tabindex="-1" role="dialog"
+                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+        
+                                                            <div class="modal-body">
+                                                                Are You Sure Do you Want to Delete ?
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">No</button>
+                                                                <a href="{%url 'deletepurchase' m.id %}"
+                                                                    class="btn btn-danger">Yes</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+        
+        
+        
+                                    {% endfor %}
+        
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Page end  -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}

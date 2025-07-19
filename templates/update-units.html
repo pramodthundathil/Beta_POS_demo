@@ -1,0 +1,39 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="category-add-list">
+    <div class="content-page">
+        <div class="container-fluid add-form-list">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card"
+                        style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="header-title">
+                                <h4 class="card-title">Add Unit
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="card-body">
+    <div class="container mt-5">
+        <h2>Update Unit</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="unit">Unit</label>
+                <input type="text" class="form-control" id="unit" name="unit" value="{{ unit.unit }}" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" required>{{ unit.description }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Update Unit</button>
+        </form>
+    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

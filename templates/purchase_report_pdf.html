@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Purchase Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .header { text-align: center; font-size: 14px; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>&nbsp;
+<body>
+    <div class="header">
+        <img src="{{logo_url}}" style="width:40px" alt="">
+        <h1>Bilberry Foods</h1>
+        <h5>Purchase Report ({{ start_date }} to {{ end_date }})</h5> 
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Bill Number</th>
+                <th>Supplier</th>
+                <!-- <th>Product</th> -->
+                <th>Bill Date</th>
+                <th>Amount</th>
+                <th>Paid</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for purchase in purchases %}
+            <tr>
+                <td>{{ purchase.purchase_bill_number|default:"N/A" }}</td>
+                <td>{{ purchase.supplier.name|default:"Unknown" }}</td>
+                <!-- <td>{{ purchase.purchase_item|default:"No Product" }}</td> -->
+                <td>{{ purchase.bill_date|date:"Y-m-d"|default:"N/A" }}</td>
+                <td>{{ purchase.amount|default:"0.00" }}</td>
+                <td>{{ purchase.paid_amount|default:"0.00" }}</td>
+                <td>{{ purchase.balance_amount|default:"0.00" }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="totals-row">
+                <td colspan="3" style="text-align: right;">Totals:</td>
+                <td>{{ totals.total_amount|default:"0.00" }}</td>
+                <td>{{ totals.total_paid_amount|default:"0.00" }}</td>
+                <td>{{ totals.total_balance_amount|default:"0.00" }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

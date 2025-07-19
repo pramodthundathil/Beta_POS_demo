@@ -1,0 +1,67 @@
+{% extends 'index.html' %}
+{% block content %}
+
+<style>
+    .category-add-list {
+        width: 80% !important;
+        margin: auto;
+
+    }
+
+    @media (max-width:700px) {
+
+        .category-add-list {
+            width: 100% !important;
+
+        }
+    }
+</style>
+
+<div class="category-add-list">
+    <div class="content-page">
+        <div class="container-fluid add-form-list">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card"style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
+                        <div class="card-header d-flex justify-content-between">
+                            <div class="header-title">
+                                <h4 class="card-title">Update Purchase Order</h4>
+                                <h6>Order Number: {{ purchase_order.purchase_order_number }}  </h6>
+                                <p>Validity date: {{purchase_order.valid_till}}</p>
+                                {% if purchase_order.order_status == "Active" %}
+                                <a href="{%url 'purchase_from_order' purchase_order.id %}" class="btn btn-warning">Make This Order as Purchase</a>
+                                {% elif purchase_order.order_status == "Expired" %}
+                                <h5 class="text-danger">Order Expired</h5>
+                                {% else %}
+                                <h5 class="text-success">Order Purchased</h5>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" data-toggle="validator">
+                                {% csrf_token %}
+                                <div class="row">
+                                {% for field in form %}
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{field.label_tag}}
+                                            {{field}}
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="submit" class="btn btn-primary mr-2">Update Purchase Order</button>
+                                <button type="reset" class="btn btn-danger">Reset</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Page end  -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}

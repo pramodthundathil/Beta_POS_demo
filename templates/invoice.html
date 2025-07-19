@@ -1,0 +1,258 @@
+<!doctype html>
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>BETA-POS</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/backend-plugin.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/backend.css?v=1.0.0' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendor/@fortawesome/fontawesome-free/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendor/remixicon/fonts/remixicon.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/jquery-ui.css' %}">
+
+    <style>
+        .head-tr-class th {
+            background-color: #FF7E41;
+        }
+
+        .product-tr td {
+            background-color: #f7b596;
+        }
+
+        .hover-card-class:hover {
+            border: 1px solid black;
+            box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        }
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                font-size: 12pt;
+            }
+            .card {
+                border: none;
+            }
+            .table{
+                width: 100% !important;
+            }
+            .table thead th {
+                background-color: #FF7E41 !important;
+                -webkit-print-color-adjust: exact; 
+                color: white !important;
+            }
+            .product-tr td {
+                background-color: #f7b596 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .header-invoice {
+                background-color: #007bff !important;
+                -webkit-print-color-adjust: exact;
+                color: white !important;
+            }
+            .invoice-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content-page">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-block card-stretch card-height print rounded">
+                        <div class="card-header d-flex justify-content-between bg-primary header-invoice">
+                            <div class="iq-header-title">
+                                <h4 class="card-title mb-0">Invoice#{{ order.invoice_number }}</h4>
+                            </div>
+                            <div class="invoice-btn">
+                                <button type="button" class="btn btn-primary-dark mr-2" onclick="printInvoice()">
+                                    <i class="las la-print"></i> Print
+                                </button>
+                                <button type="button" class="btn btn-primary-dark" onclick="downloadPDF()">
+                                    <i class="las la-file-download"></i>PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body" id="invoice-content">
+                            <!-- Your invoice content goes here -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <img src="{% static 'assets/images/logo.png' %}" class="logo-invoice img-fluid mb-3">
+                                    <h5 class="mb-0">Hello, {{ order.customer.name }}</h5>
+                                    <p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at
+                                        its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as
+                                        opposed to using 'Content here, content here', making it look like readable English.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="table-responsive-sm">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Order Date</th>
+                                                    <th scope="col">Order Status</th>
+                                                    <th></th>
+                                                    <th scope="col">Order ID</th>
+                                                    <th scope="col">Billing Address</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{ order.order_date }}</td>
+                                                    <td>
+                                                        {% if order.payment_status1 == 'UNPAID' %}
+                                                        <span class="badge bg-danger">{{ order.payment_status1 }} </span>
+                                                        {% elif order.payment_status1 == 'PAID' %}
+                                                        <span class="badge bg-success">{{ order.payment_status1 }} </span>Paid
+                                                        {% elif order.payment_status1 == 'PARTIALLY' %}
+                                                        <span class="badge bg-warning">{{ order.payment_status1 }} </span>Paid
+                                                        {% else %}
+                                                        <span class="badge bg-dark">UNKNOWN</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td></td>
+                                                    <td>#{{ order.invoice_number }}</td>
+                                                    <td>
+                                                        <h6>{{ order.customer.name }}</h6>
+                                                        <p class="mb-0">PO Box {{ order.customer.pincode }} {{ order.customer.contact_info }}<br>{{ order.customer.state }} {{ order.customer.country }}<br>
+                                                            Phone: {{ order.customer.phone }}<br>
+                                                            Email: {{ order.customer.email }}<br>
+                                                            GST: {{ order.customer.gst_number }}
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="mb-3">Order Summary</h5>
+                                    <div class="table-responsive-sm">
+                                        <table class="table" style="width: 100% !important;">
+                                            <thead style="width: 100% !important;">
+                                                <tr>
+                                                    <th class="text-center" scope="col">#</th>
+                                                    <th scope="col">Item</th>
+                                                    <th></th>
+                                                    <th class="text-center" scope="col">Quantity</th>
+                                                    <th></th>
+                                                    <th class="text-center" scope="col">Price</th>
+                                                    <th></th>
+                                                    <th class="text-center" scope="col">Totals</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="width: 100% !important;">
+                                                {% for item in order_items %}
+                                                <tr>
+                                                    <th class="text-center" scope="row">{{ forloop.counter }}</th>
+                                                    <td>
+                                                        <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                        <p class="mb-0">{{ item.product.description }}</p>
+                                                    </td>
+                                                    <th></th>
+                                                    <td class="text-center">{{ item.quantity }}</td>
+                                                    <th></th>
+                                                    <td class="text-center">${{ item.unit_price }}</td>
+                                                    <th></th>
+                                                    <td class="text-center"><b>${{ item.total_price }}</b></td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <b class="text-danger">Notes:</b>
+                                    <p class="mb-0">It is a long established fact that a reader will be distracted by the readable content of a page
+                                        when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+                                        as opposed to using 'Content here, content here', making it look like readable English.</p>
+                                </div>
+                            </div>
+                            <div class="row mt-4 mb-3">
+                                <div class="offset-lg-12 col-lg-12">
+                                    <div class="or-detail rounded">
+                                        <div class="p-3">
+                                            <h5 class="mb-3">Order Details</h5>
+                                            <table class="table">
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Total Amount</th>
+                                                    <th>Discount</th>
+                                                    <th>Amount Paid</th>
+                                                    <th>Balance Amount</th>
+                                                    <th>Total</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{order.order_date}}</td>
+                                                    <td>{{order.total_amount}}</td>
+                                                    <td>{{order.discount}}</td>
+                                                    <td>{{order.payed_amount}}</td>
+                                                    <td>{{order.balance_amount}}</td>
+                                                    <td class="h5 text-info">{{ order.total_amount }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="ttl-amt py-2 px-3 d-flex justify-content-between align-items-center">
+                                            <h6>Total</h6>
+                                            <h3 class="text-primary font-weight-700">${{ order.total_amount}}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function printInvoice() {
+            var printContents = document.getElementById('invoice-content').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+    
+        function downloadPDF() {
+            // This function should be implemented with a library like jsPDF
+            // to generate a PDF of the invoice content
+        }
+    </script>
+    
+    <!-- Backend Bundle JavaScript -->
+    <script src="{% static 'assets/js/backend-bundle.min.js' %}"></script>
+    
+    <!-- Table Treeview JavaScript -->
+    <script src="{% static 'assets/js/table-treeview.js' %}"></script>
+    
+    <!-- Chart Custom JavaScript -->
+    <script src="{% static 'assets/js/customizer.js' %}"></script>
+    
+    <!-- Chart Custom JavaScript -->
+    <script async src="{% static 'assets/js/chart-custom.js' %}"></script>
+    
+    <!-- app JavaScript -->
+    <script src="{% static 'assets/js/app.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+    <link href="{% static 'assets/css/select2.min.css' %}" rel="stylesheet" />
+    <script src="{% static 'assets/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-ui.min.js' %}"></script>
+    <!-- custom scripts -->
+</body>
+</html>
