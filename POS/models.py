@@ -20,6 +20,47 @@ class Order(models.Model):
 
     payed_amount = models.FloatField(default=0)
     balance_amount = models.FloatField()
+    cgst_amount = models.FloatField(default=0)
+    sgst_amount = models.FloatField(default=0)
+    igst_amount = models.FloatField(default=0)  # For inter-state transactions
+    
+    def update_totals(self):
+        total_amount_before_discount = 0
+        total_amount = 0
+        total_tax = 0
+        total_discount = 0
+        cgst_total = 0
+        sgst_total = 0
+
+        for item in self.orderitem_set.all():
+            # Calculate the total amount before discount
+            item_total_before_discount = item.unit_price * item.quantity
+            total_amount_before_discount += item_total_before_discount
+            
+            # Sum up the discount for each item
+            total_discount += item.discount
+
+            # Calculate the total price (after discount) and total tax for each item
+            total_amount += item.total_price
+            total_tax += item.total_tax
+            
+            # Calculate CGST and SGST
+            cgst_total += item.cgst_amount
+            sgst_total += item.sgst_amount
+        
+        # Apply bill_discount to the total discount
+        total_discount += float(self.bill_discount)
+
+        # Adjust the total amount by subtracting the bill discount
+        total_amount -= float(self.bill_discount)
+
+        self.total_amount_before_discount = total_amount_before_discount
+        self.total_amount = total_amount
+        self.total_tax = total_tax
+        self.discount = total_discount
+        self.cgst_amount = cgst_total
+        self.sgst_amount = sgst_total
+        self.save()
 
 
     def adjust_stock(self):
@@ -65,35 +106,35 @@ class Order(models.Model):
                 raise ValueError(f"Not enough stock for product: {product.name}")
 
 
-    def update_totals(self):
-        total_amount_before_discount = 0
-        total_amount = 0
-        total_tax = 0
-        total_discount = 0
+    # def update_totals(self):
+    #     total_amount_before_discount = 0
+    #     total_amount = 0
+    #     total_tax = 0
+    #     total_discount = 0
 
-        for item in self.orderitem_set.all():
-            # Calculate the total amount before discount
-            item_total_before_discount = item.unit_price * item.quantity
-            total_amount_before_discount += item_total_before_discount
+    #     for item in self.orderitem_set.all():
+    #         # Calculate the total amount before discount
+    #         item_total_before_discount = item.unit_price * item.quantity
+    #         total_amount_before_discount += item_total_before_discount
             
-            # Sum up the discount for each item
-            total_discount += item.discount
+    #         # Sum up the discount for each item
+    #         total_discount += item.discount
 
-            # Calculate the total price (after discount) and total tax for each item
-            total_amount += item.total_price  # `total_price` already includes the discount
-            total_tax += item.total_tax
+    #         # Calculate the total price (after discount) and total tax for each item
+    #         total_amount += item.total_price  # `total_price` already includes the discount
+    #         total_tax += item.total_tax
         
-         # Apply bill_discount to the total discount
-        total_discount += float(self.bill_discount)
+    #      # Apply bill_discount to the total discount
+    #     total_discount += float(self.bill_discount)
 
-    # Adjust the total amount by subtracting the bill discount
-        total_amount -= float(self.bill_discount)
+    # # Adjust the total amount by subtracting the bill discount
+    #     total_amount -= float(self.bill_discount)
 
-        self.total_amount_before_discount = total_amount_before_discount
-        self.total_amount = total_amount  # Already discounted total amount
-        self.total_tax = total_tax
-        self.discount = total_discount # Set the order discount as the sum of item discounts
-        self.save()
+    #     self.total_amount_before_discount = total_amount_before_discount
+    #     self.total_amount = total_amount  # Already discounted total amount
+    #     self.total_tax = total_tax
+    #     self.discount = total_discount # Set the order discount as the sum of item discounts
+    #     self.save()
        
         
     def calculate_balance(self):
@@ -128,15 +169,41 @@ class OrderItem(models.Model):
     discount = models.FloatField(default=0)
     total_price = models.FloatField(editable=False)  # Make this field non-editable
     total_tax = models.FloatField(editable=False)  # Make this field non-editable
-
+    
+    cgst_rate = models.FloatField(default=9.0)
+    sgst_rate = models.FloatField(default=9.0)
+    igst_rate = models.FloatField(default=0.0)
+    cgst_amount = models.FloatField(editable=False, default=0)
+    sgst_amount = models.FloatField(editable=False, default=0)
+    igst_amount = models.FloatField(editable=False, default=0)
+    taxable_amount = models.FloatField(editable=False, default=0)
 
     # Example tax rate of 10%
 
     def save(self, *args, **kwargs):
         if not self.unit_price:
-            self.unit_price = self.product.unit_price  # Assuming the product has a price field
-        self.total_price = self.unit_price * self.quantity - self.discount
-        self.total_tax = self.product.tax_amount * self.quantity
+            self.unit_price = self.product.unit_price
+        
+        # Calculate taxable amount (after item discount)
+        self.taxable_amount = (self.unit_price * self.quantity) - self.discount
+        
+        # Calculate tax amounts based on product tax percentage
+        if self.product.tax_percentage:
+            total_tax_rate = self.product.tax_percentage
+            self.cgst_rate = total_tax_rate / 2
+            self.sgst_rate = total_tax_rate / 2
+            
+            self.cgst_amount = (self.taxable_amount * self.cgst_rate) / 100
+            self.sgst_amount = (self.taxable_amount * self.sgst_rate) / 100
+            self.total_tax = self.cgst_amount + self.sgst_amount
+        else:
+            self.cgst_amount = 0
+            self.sgst_amount = 0
+            self.total_tax = 0
+        
+        # Total price includes tax
+        self.total_price = self.taxable_amount + self.total_tax
+        
         super(OrderItem, self).save(*args, **kwargs)
 
     def __str__(self):

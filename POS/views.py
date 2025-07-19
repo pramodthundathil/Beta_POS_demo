@@ -558,34 +558,85 @@ def invoice_old(request,pk):
 
 
 from math import ceil
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from math import ceil
 
 @login_required(login_url='SignIn')
 def invoice(request, pk):
     order = get_object_or_404(Order, id=pk)
     order_items = list(order.orderitem_set.all())
 
-    # Paginate items: 20 items per page
-    items_per_page = 20
+    # Paginate items: 10 items per page for better GST invoice layout
+    items_per_page = 10
     total_pages = ceil(len(order_items) / items_per_page)
-    paginated_items = [
-        order_items[i * items_per_page:(i + 1) * items_per_page]
-        for i in range(total_pages)
-    ]
-      # Add sequential numbers to each item
-    for page_index, page in enumerate(paginated_items, start=1):
-        forloop_offset = (page_index - 1) * items_per_page
-        for i, item in enumerate(page, start=1):
-            item.sequential_number = forloop_offset + i
+    paginated_items = []
+    
+    for i in range(total_pages):
+        page_items = order_items[i * items_per_page:(i + 1) * items_per_page]
+        
+        # Add sequential numbers to each item
+        forloop_offset = i * items_per_page
+        for j, item in enumerate(page_items, start=1):
+            item.sequential_number = forloop_offset + j
+        
+        # Add empty rows to fill the page (for consistent layout)
+        empty_rows_needed = items_per_page - len(page_items)
+        for k in range(empty_rows_needed):
+            # Create a dummy object for empty rows
+            class EmptyRow:
+                def __init__(self):
+                    self.is_empty = True
+                    self.sequential_number = ""
+            page_items.append(EmptyRow())
+            
+        paginated_items.append(page_items)
 
+    # Calculate tax summary (only from real order items, not empty rows)
+    total_taxable_amount = sum(getattr(item, 'taxable_amount', 0) for item in order_items)
+    total_cgst = sum(getattr(item, 'cgst_amount', 0) for item in order_items)
+    total_sgst = sum(getattr(item, 'sgst_amount', 0) for item in order_items)
+    
     # Pass the necessary context to the template
     context = {
         "order": order,
-        "paginated_items": paginated_items,  # A list of pages, each containing items
-        "total_in_words": amount_in_words(round(order.total_amount, 2)),  # Convert total amount to words
+        "paginated_items": paginated_items,
+        "total_in_words": amount_in_words(round(order.total_amount, 2)),
         "items_per_page": items_per_page,
         "total_pages": total_pages,
+        "total_taxable_amount": total_taxable_amount,
+        "total_cgst": total_cgst,
+        "total_sgst": total_sgst,
     }
     return render(request, 'invoice_template.html', context)
+
+# @login_required(login_url='SignIn')
+# def invoice(request, pk):
+#     order = get_object_or_404(Order, id=pk)
+#     order_items = list(order.orderitem_set.all())
+
+#     # Paginate items: 20 items per page
+#     items_per_page = 20
+#     total_pages = ceil(len(order_items) / items_per_page)
+#     paginated_items = [
+#         order_items[i * items_per_page:(i + 1) * items_per_page]
+#         for i in range(total_pages)
+#     ]
+#       # Add sequential numbers to each item
+#     for page_index, page in enumerate(paginated_items, start=1):
+#         forloop_offset = (page_index - 1) * items_per_page
+#         for i, item in enumerate(page, start=1):
+#             item.sequential_number = forloop_offset + i
+
+#     # Pass the necessary context to the template
+#     context = {
+#         "order": order,
+#         "paginated_items": paginated_items,  # A list of pages, each containing items
+#         "total_in_words": amount_in_words(round(order.total_amount, 2)),  # Convert total amount to words
+#         "items_per_page": items_per_page,
+#         "total_pages": total_pages,
+#     }
+#     return render(request, 'invoice_template.html', context)
 
 
 # @csrf_exempt

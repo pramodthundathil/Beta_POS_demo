@@ -3,21 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="https://use.typekit.net/oov2wcw.css"> -->
-    <title>Invoice</title>
+    <title>Tax Invoice</title>
     <style>
         body {
-            /* font-family: century-gothic, sans-serif !important; */
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f8f8f8;
-        }
-        .invoice-deatils{
-            display: flex !important;
-            justify-content: space-between;
-        }
-        .invoice-deatils td{
-            padding: 2px;
+            font-size: 12px;
         }
 
         .container {
@@ -25,277 +18,393 @@
             max-width: 800px;
             margin: auto;
             background-color: white;
-            padding: 1px;
-padding-left:0px !importent;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .header {
-            text-align: center;
+            border: 2px solid #000;
+            padding: 10px;
             margin-bottom: 10px;
         }
 
-        .header img {
-            max-width: 150px;
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
+        .company-address {
+            text-align: center;
+            font-size: 11px;
+            margin-bottom: 10px;
         }
 
-        .header p {
-            margin: 0;
-            font-size: 14px;
+        .invoice-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #000;
+            color: white;
+            padding: 5px;
+            margin: 10px 0;
         }
 
-        .patient-info,
-        .sample-info {
+        .invoice-details {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0px;
+            margin-bottom: 15px;
         }
 
-        .info-block {
+        .invoice-left, .invoice-right {
             width: 48%;
         }
 
-        .info-block h3 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
+        .detail-row {
+            display: flex;
+            margin-bottom: 3px;
         }
 
-        .info-block p {
-            margin: 0;
-            font-size: 14px;
-            padding: 5px;
-        }
-
-        .report-title {
-            text-align: center;
-            margin: 0px 0;
-            font-size: 18px;
+        .detail-label {
             font-weight: bold;
-            color: rgb(233, 52, 52);
-            -webkit-print-color-adjust: exact;
+            width: 120px;
         }
 
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: small;
+        .detail-value {
+            flex: 1;
         }
 
-        .report-table thead th {
-            color: rgb(5, 111, 147);
-            /* padding: 5px; */
-            text-align: left;
-            -webkit-print-color-adjust: exact;
-            font-weight: 800;
-        }
-
-        th,
-        td {
-            padding-bottom: 4px !important;
-            -webkit-print-color-adjust: exact;
-        }
-
-        .signature-block {
+        .billing-shipping {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
+            margin-bottom: 15px;
         }
 
-        .signature-block div {
-            text-align: center;
-            width: 30%;
+        .billing-address, .shipping-address {
+            width: 48%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 80px;
         }
 
-        .footer {
-            text-align: center;
-            position: fixed;
-            bottom: 80px;
+        .address-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            background-color: #f0f0f0;
+            padding: 3px;
+        }
+
+        .items-table {
             width: 100%;
-            font-size: 14px;
-            /* margin-top: 20px; */
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 11px;
         }
 
-        table {
-            margin-right: 20px !important;
+        .items-table th, .items-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
         }
 
-        h4 {
+        .items-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
             text-align: center;
-            color: rgb(5, 111, 147);
-            -webkit-print-color-adjust: exact;
-            margin-top: 0; /* Reduce margin to fix gap */
+        }
+
+        .items-table .text-right {
+            text-align: right;
+        }
+
+        .items-table .text-center {
+            text-align: center;
+        }
+
+        .tax-summary {
+            float: right;
+            width: 300px;
+            margin-top: 10px;
+        }
+
+        .tax-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .tax-table th, .tax-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: right;
+        }
+
+        .tax-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .amount-in-words {
+            clear: both;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .terms, .signature {
+            width: 48%;
+        }
+
+        .signature {
+            text-align: right;
         }
 
         @media print {
             @page {
-                /* margin: 150px 30px; Top and bottom margins of 130px */
-                margin-top: 160px;
-                counter-increment: page;
-                /* margin-bottom: 20px; */
+                margin: 0.5in;
             }
-
-            .patient-info {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                background-color: white;
-                padding: 0px;
-            }
-
-            .container {
-                /* margin-top: 140px;  */
-            }
-
-            .report-table {
-                margin-top: 0; /* Reduce margin to fix gap */
-            }
-
-            /* Page numbers */
-            .page-number:after {
-                content: "Page " counter(page) " of " counter(pages);
-                position: fixed;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                padding: 10px;
-                text-align: center;
-                font-size: 12px;
-            }
-
+            
             body {
-                counter-reset: page;
+                background-color: white;
             }
-
-            .page-number {
-                counter-increment: page;
-                text-align: center;
-                font-size: 12px;
-                position: fixed;
-                bottom: 0;
-                width: 100%;
+            
+            .container {
+                max-width: none;
+                padding: 0;
             }
-            .item-details{
-
-            page-break-inside: avoid;
-
+            
+            .no-print {
+                display: none;
             }
-            .footer {
-            break-before: page; /* Force footer onto a new page if it overflows */
-            text-align: center;
-            font-size: 14px;
-            /* margin-top: 20px; */
         }
-        .force-page-break {
-            break-before: page; /* Force new page for content overflow */
-        }
-        }
-        .foot-items{
-            position: relative;
-        }
-        .item{
-            top: 50px;
+
+        .page-break {
+            page-break-before: always;
         }
     </style>
 </head>
 
 <body onload="printInvoice()">
     {% for page in paginated_items %}
-
-    <div class="container" id="invoice-content">
-        <div class="invoice-deatils" style="position: fixed; width: 100%;">
-            <div class="items-container" style="">
-                <h5>Customer/اسم العميل</h5>
-                <p>{{ order.customer.name }}</p>
-                <p>{{ order.customer.city }}</p>
-
+    <div class="container{% if not forloop.first %} page-break{% endif %}">
+        
+        <!-- Header Section -->
+        <div class="header">
+            <div class="company-name">YOUR COMPANY NAME</div>
+            <div class="company-address">
+                Your Company Address Line 1<br>
+                Your Company Address Line 2, City - PIN Code<br>
+                Phone: +91-XXXXXXXXXX | Email: info@company.com<br>
+                GSTIN: XXXXXXXXXXXX | PAN: XXXXXXXXXX
             </div>
-            <div class="items-comtainer head-table margin-top:20px;" >
-                <table style="width:100%;position: relative;left: 60px;top:15px" >
-                    <tr>
-                        <td>Date</td>
-                        <td>{{ order.order_date }}</td>
-                    </tr>
-                    <tr>
-                        <td>Invoice Number</td>
-                        <td>{{ order.invoice_number }}</td>
-                    </tr>
-                    <tr>
-                        <td>Sales Rep</td>
-                        <td>{{ order.sales_man }}</td>
-                    </tr>
-                    <tr>
-                        <td>Payment</td>
-                        <td>{{ order.payment_status1 }}</td>
-                    </tr>
-                </table>
+            <div class="invoice-title">TAX INVOICE</div>
+        </div>
 
+        <!-- Invoice Details -->
+        <div class="invoice-details">
+            <div class="invoice-left">
+                <div class="detail-row">
+                    <span class="detail-label">Invoice No:</span>
+                    <span class="detail-value">{{ order.invoice_number }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Invoice Date:</span>
+                    <span class="detail-value">{{ order.order_date|date:"d/m/Y" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Sales Rep:</span>
+                    <span class="detail-value">{{ order.sales_man|default:"N/A" }}</span>
+                </div>
+            </div>
+            <div class="invoice-right">
+                <div class="detail-row">
+                    <span class="detail-label">Payment Status:</span>
+                    <span class="detail-value">{{ order.payment_status1 }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Due Date:</span>
+                    <span class="detail-value">{{ order.order_date|date:"d/m/Y" }}</span>
+                </div>
+                {% if forloop.first %}
+                <div class="detail-row">
+                    <span class="detail-label">Page:</span>
+                    <span class="detail-value">{{ forloop.counter }} of {{ paginated_items|length }}</span>
+                </div>
+                {% endif %}
             </div>
         </div>
-        
-        <div class="item-details" style="margin-top:170px;height:488px; padding: 10px;box-sizing: border-box;padding-left: 0;margin-right: 30px; ">
-            <table style="width: 100%;table-layout: fixed;">
+
+        <!-- Billing and Shipping Address -->
+        <div class="billing-shipping">
+            <div class="billing-address">
+                <div class="address-title">Bill To:</div>
+                <strong>{{ order.customer.name }}</strong><br>
+                {{ order.customer.address|default:"" }}<br>
+                {{ order.customer.city|default:"" }}<br>
+                Phone: {{ order.customer.phone|default:"N/A" }}<br>
+                {% if order.customer.gstin %}
+                GSTIN: {{ order.customer.gstin }}
+                {% endif %}
+            </div>
+            <div class="shipping-address">
+                <div class="address-title">Ship To:</div>
+                <strong>{{ order.customer.name }}</strong><br>
+                {{ order.customer.address|default:"Same as billing address" }}<br>
+                {{ order.customer.city|default:"" }}<br>
+                Phone: {{ order.customer.phone|default:"N/A" }}
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">S.No</th>
+                    <th style="width: 35%;">Description of Goods</th>
+                    <th style="width: 8%;">HSN/SAC</th>
+                    <th style="width: 8%;">Qty</th>
+                    <th style="width: 8%;">Unit</th>
+                    <th style="width: 10%;">Rate</th>
+                    <th style="width: 8%;">Disc%</th>
+                    <th style="width: 10%;">Taxable Value</th>
+                    <th style="width: 8%;">Tax Rate</th>
+                </tr>
+            </thead>
+            <tbody>
                 {% for item in page %}
                 <tr>
-                    <td style="width: 10% !important;padding-left:-3px;text-align:left !importent;" class="row-counter">
-                        {{ item.sequential_number }}
-                    </td>
-                    
-                    <td style="width: 55% !important;padding-left:10px ">{{ item.product.name }}</td>
-                    <td style="width: 10% !important;padding-left:7px">{{ item.product.unit_quantity }} {{item.product.unit}}</td>
-                    <td style="width: 10% !important;padding-left:10px;"> {{ item.quantity }}</td>
-                    <td style="width: 9% !important;padding-left: 39px;box-sizing: border-box;">{{ item.unit_price |floatformat:2}}</td>
-                    <td style="width: 10% !important;padding-left:30px;box-sizing: content-box;position: relative;left: 23px;text-align:center">{{ item.total_price|floatformat:2 }}</td>
+                    {% if item.is_empty %}
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    {% else %}
+                        <td class="text-center">{{ item.sequential_number }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td class="text-center">{{ item.product.hsn_code|default:"N/A" }}</td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-center">{{ item.product.unit|default:"PCS" }}</td>
+                        <td class="text-right">₹{{ item.unit_price|floatformat:2 }}</td>
+                        <td class="text-center">
+                            {% if item.discount > 0 %}
+                                {% widthratio item.discount item.unit_price 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                        <td class="text-right">₹{{ item.total_price|floatformat:2 }}</td>
+                        <td class="text-center">
+                            {% if item.product.tax_percentage %}
+                                {{ item.product.tax_percentage }}%
+                            {% else %}
+                                18%
+                            {% endif %}
+                        </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
-                
+            </tbody>
+        </table>
+
+        <!-- Only show totals on last page -->
+        {% if forloop.last %}
+        <div class="tax-summary">
+            <table class="tax-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Subtotal (Before Discount)</td>
+                        <td>{{ order.total_amount_before_discount|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Discount</td>
+                        <td>{{ order.discount|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td>Taxable Amount</td>
+                        <td>{% widthratio order.total_amount order.total_tax 1 %}</td>
+                    </tr>
+                    <tr>
+                        <td>CGST (9%)</td>
+                        <td>{% widthratio order.total_tax 2 1 %}</td>
+                    </tr>
+                    <tr>
+                        <td>SGST (9%)</td>
+                        <td>{% widthratio order.total_tax 2 1 %}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Tax</td>
+                        <td>{{ order.total_tax|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>Grand Total</strong></td>
+                        <td><strong>{{ order.total_amount|floatformat:2 }}</strong></td>
+                    </tr>
+                </tbody>
             </table>
         </div>
-    </div>
-    <div class="footer">
-        <!-- <div class="foot-items item" style="flex-grow: 8;text-align: center;width: 80%;margin-top: 50px;padding-top: 30px;box-sizing: border-box;">
-                
-                <span class="text-center"> {{total_in_words}}</span>
-        </div>
-        <div class="foot-items" style="flex-grow: 4;text-align: right;padding-right: 20px;">
-            <p style=''>{{order.total_amount_before_discount|floatformat:2}}</p>
-            <p style=''>{{order.discount|floatformat:2}}</p>
-            <p style=''>{{order.total_amount|floatformat:2}}</p>
 
-        </div> -->
+        <div class="amount-in-words">
+            <strong>Amount in Words:</strong> {{ total_in_words }} Only
+        </div>
+
+        <div class="footer-info">
+            <div class="terms">
+                <strong>Terms & Conditions:</strong><br>
+                1. Payment due within 30 days<br>
+                2. Interest @24% p.a. on overdue amounts<br>
+                3. All disputes subject to local jurisdiction<br>
+                4. Goods once sold will not be taken back
+            </div>
+            <div class="signature">
+                <br><br><br>
+                <strong>For YOUR COMPANY NAME</strong><br><br><br>
+                <hr style="width: 150px;">
+                Authorized Signatory
+            </div>
+        </div>
+        {% endif %}
+
     </div>
     {% endfor %}
-    <div class="foot-items item"
-        style="flex-grow: 8;text-align: center;width: 80%;margin-top: 50px;padding-top: 10px;box-sizing: border-box;">
-
-        <span class="text-center"> {{total_in_words}}</span>
-    </div>
-    <div class="foot-items" style="flex-grow: 4;text-align: right;padding-right: 20px;">
-        <p style=''>{{order.total_amount_before_discount|floatformat:2}}</p>
-        <p style=''>{{order.discount|floatformat:2}}</p>
-        <p style=''>{{order.total_amount|floatformat:2}}</p>
-
-    </div>
-
 
     <script>
         function printInvoice() {
-            var printContents = document.getElementById('invoice-content').innerHTML;
-            var originalContents = document.body.innerHTML;
-            document.body.innerHTML = printContents;
-            window.print();
-            document.body.innerHTML = originalContents;
+            // Remove no-print elements
+            const noPrintElements = document.querySelectorAll('.no-print');
+            noPrintElements.forEach(el => el.style.display = 'none');
             
+            // Print the document
+            window.print();
+            
+            // Close window after printing (optional)
             setTimeout(function() {
-            window.close(); // Close the window after printing
-        }, 100); // 100ms delay, adjust if needed
+                window.close();
+            }, 100);
         }
-    
     </script>
 </body>
 </html>
